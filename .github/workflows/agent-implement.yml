@@ -43,7 +43,9 @@ jobs:
             4. Existing related code and tests
 
             Deliver exactly one pull request:
-            - Branch name: agent/issue-${{ github.event.issue.number }}
+            - Commit all work on the current branch; the harness handles
+              branch naming, pushing, and pull request creation.
+            - Do not create, rename, or delete branches yourself.
             - Include or update tests covering every acceptance criterion.
             - Run all quality gates defined in AGENTS.md (make check) and
               record the results in the PR description.
