@@ -23,8 +23,10 @@
 ## Git
 
 - Never push to `main`.
-- Create one branch and one pull request per issue.
-- Branch name: `agent/issue-<issue-number>`.
+- Commit your work on the current branch provided by the automation.
+- Do not create, rename, or delete branches yourself; branch and pull
+  request handling is owned by the harness.
+- Create exactly one commit series and one pull request per issue.
 - The PR description must include: issue link, approach, commands run with
   results, and known limitations.
 
