@@ -47,8 +47,23 @@ jobs:
             4. Architecture rules in docs/ARCHITECTURE.md, especially
                no business logic in routes.
 
-            Post your findings as a single comment containing ONLY a JSON
-            object, no surrounding prose and no code fences:
+            Post your findings as a single comment with this exact shape:
+
+            ## Agent review
+
+            <one-sentence summary>
+
+            | Severity | Location | Issue | Recommendation |
+            | --- | --- | --- | --- |
+            | high | path/to/file.py:42 | why it matters | concrete fix |
+
+            (omit the table if there are no findings; instead write
+            "No findings.")
+
+            <details>
+            <summary>Structured output</summary>
+
+            ```json
             {
               "summary": "one sentence",
               "findings": [
@@ -66,6 +81,9 @@ jobs:
                 "tests": "pass|fail"
               }
             }
+            ```
 
-            Use an empty findings array when there is nothing to report.
+            </details>
+
+            The JSON object must exactly match the markdown summary above.
             Do not approve, request changes, merge, or modify any code.
