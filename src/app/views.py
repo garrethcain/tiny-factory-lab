@@ -20,7 +20,7 @@ class DeviceViewSet(viewsets.ModelViewSet[Device]):
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
 
-    @action(detail=True, methods=["get"])
+    @action(detail=True)
     def readings(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         device = self.get_object()
         device_readings = reading_services.list_device_readings(device)
