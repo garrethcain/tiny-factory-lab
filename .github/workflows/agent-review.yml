@@ -5,7 +5,9 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
-  id-token: write
+  contents: read
+  pull-requests: write
+  issues: write
 
 concurrency:
   group: agent-review-${{ github.event.pull_request.number }}
@@ -29,11 +31,13 @@ jobs:
           python-version: "3.12"
 
       - name: Run OpenCode review
-        uses: anomalyco/opencode/github@latest
+        uses: anomalyco/opencode/github@2c14fc5586fe0b88e5c04732d2e846769cc35671
         env:
           ZHIPU_API_KEY: ${{ secrets.ZHIPU_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           model: zai-coding-plan/glm-5.3-flash
+          use_github_token: true
           share: false
           prompt: |
             Review this pull request against its linked GitHub issue.
