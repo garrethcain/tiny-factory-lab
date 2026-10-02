@@ -1,0 +1,71 @@
+name: Agent review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  id-token: write
+
+concurrency:
+  group: agent-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    if: >-
+      github.event.pull_request.head.repo.full_name ==
+      github.event.pull_request.base.repo.full_name
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@v10
+        with:
+          python-version: "3.12"
+
+      - name: Run OpenCode review
+        uses: anomalyco/opencode/github@latest
+        env:
+          ZHIPU_API_KEY: ${{ secrets.ZHIPU_API_KEY }}
+        with:
+          model: zai-coding-plan/glm-5.3-flash
+          share: false
+          prompt: |
+            Review this pull request against its linked GitHub issue.
+
+            Check, in order:
+            1. AGENTS.md compliance: scope, no forbidden file changes,
+               no unrelated refactors.
+            2. Whether every acceptance criterion in the issue is
+               implemented and covered by tests.
+            3. Correctness bugs, security issues, and test gaps.
+            4. Architecture rules in docs/ARCHITECTURE.md, especially
+               no business logic in routes.
+
+            Post your findings as a single comment containing ONLY a JSON
+            object, no surrounding prose and no code fences:
+            {
+              "summary": "one sentence",
+              "findings": [
+                {
+                  "severity": "high|medium|low",
+                  "file": "path/from/repo/root",
+                  "line": 0,
+                  "reason": "why it matters",
+                  "recommendation": "concrete fix"
+                }
+              ],
+              "checks": {
+                "acceptance_criteria": "pass|partial|fail",
+                "agents_md_scope": "pass|fail",
+                "tests": "pass|fail"
+              }
+            }
+
+            Use an empty findings array when there is nothing to report.
+            Do not approve, request changes, merge, or modify any code.

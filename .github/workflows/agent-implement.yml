@@ -1,0 +1,55 @@
+name: Agent implementation
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  id-token: write
+
+concurrency:
+  group: agent-implementation-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  implement:
+    if: github.event.label.name == 'ready-for-agent'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@v10
+        with:
+          python-version: "3.12"
+
+      - name: Run OpenCode
+        uses: anomalyco/opencode/github@latest
+        env:
+          ZHIPU_API_KEY: ${{ secrets.ZHIPU_API_KEY }}
+        with:
+          model: zai-coding-plan/glm-5.3
+          share: false
+          prompt: |
+            Implement GitHub issue #${{ github.event.issue.number }}.
+
+            Read, in this order:
+            1. AGENTS.md
+            2. docs/ARCHITECTURE.md
+            3. The complete issue body and all comments
+            4. Existing related code and tests
+
+            Deliver exactly one pull request:
+            - Branch name: agent/issue-${{ github.event.issue.number }}
+            - Include or update tests covering every acceptance criterion.
+            - Run all quality gates defined in AGENTS.md (make check) and
+              record the results in the PR description.
+            - Do not alter workflows, permissions, dependency definitions,
+              secrets, or deployment configuration unless the issue
+              explicitly requires it.
+            - If requirements are ambiguous, incomplete, or conflicting,
+              comment on the issue with specific questions instead of
+              opening a speculative PR.
